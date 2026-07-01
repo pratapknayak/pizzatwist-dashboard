@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PizzaTwist — Accounts Dashboard 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+header{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:#dc2626;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
+.logo h1{font-size:16px;font-weight:700;color:#0f172a}
+.logo span{font-size:12px;color:#64748b;font-weight:400}
+.header-meta{font-size:12px;color:#64748b}
+
+.shell{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 56px)}
+
+/* SIDEBAR */
+aside{background:#fff;border-right:1px solid #e2e8f0;padding:16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.month-tabs{display:flex;flex-direction:column;gap:4px}
+.month-tab{padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:#64748b;border:none;background:none;text-align:left;transition:all .15s}
+.month-tab:hover{background:#f8fafc;color:#0f172a}
+.month-tab.active{background:#0f172a;color:#fff}
+
+.card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94a3b8;margin-bottom:10px}
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0}
+.kpi-label{font-size:10px;color:#94a3b8;margin-bottom:2px}
+.kpi-value{font-size:15px;font-weight:700}
+.kpi-value.green{color:#16a34a}
+.kpi-value.red{color:#dc2626}
+.kpi-value.blue{color:#2563eb}
+.kpi-value.amber{color:#d97706}
+
+.breakdown-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.breakdown-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.breakdown-label{font-size:12px;color:#475569;flex:1}
+.breakdown-amount{font-size:12px;font-weight:600;color:#0f172a}
+.breakdown-pct{font-size:10px;color:#94a3b8;min-width:32px;text-align:right}
+.mini-bar-wrap{height:4px;background:#f1f5f9;border-radius:2px;margin-bottom:10px}
+.mini-bar{height:4px;border-radius:2px}
+
+.note{font-size:10px;color:#94a3b8;margin-top:6px;line-height:1.5}
+
+/* MAIN */
+main{display:flex;flex-direction:column;padding:20px;gap:20px;overflow-x:hidden}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:14px;font-weight:700;color:#0f172a}
+
+/* Filter chips */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#64748b;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:#0f172a;color:#0f172a}
+.chip.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.chip[data-cat="Inventory"].active{background:#2563eb;border-color:#2563eb}
+.chip[data-cat="Payroll"].active{background:#7c3aed;border-color:#7c3aed}
+.chip[data-cat="Rent"].active{background:#d97706;border-color:#d97706}
+.chip[data-cat="Utilities"].active{background:#0891b2;border-color:#0891b2}
+.chip[data-cat="Platform Fees"].active{background:#6b7280;border-color:#6b7280}
+.chip[data-cat="Grocery"].active{background:#ea580c;border-color:#ea580c}
+.chip[data-cat="Advertising"].active{background:#db2777;border-color:#db2777}
+.chip[data-cat="Services & Other"].active{background:#475569;border-color:#475569}
+.chip[data-cat="Shift4 (POS)"].active{background:#16a34a;border-color:#16a34a}
+.chip[data-cat="DoorDash"].active{background:#dc2626;border-color:#dc2626}
+.chip[data-cat="Uber Eats"].active{background:#000;border-color:#000}
+.chip[data-cat="Grubhub"].active{background:#f97316;border-color:#f97316}
+
+/* Table */
+.table-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:#f8fafc}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;border-bottom:1px solid #e2e8f0;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:#475569}
+td{padding:10px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+tr.hidden{display:none}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;white-space:nowrap}
+.src-badge{font-size:10px;color:#94a3b8;background:#f1f5f9;padding:2px 6px;border-radius:4px}
+.amount-pos{color:#16a34a;font-weight:600}
+.amount-neg{color:#dc2626;font-weight:600}
+.empty-state{text-align:center;padding:40px;color:#94a3b8;font-size:13px}
+
+/* BAR CHART */
+.chart-section{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px}
+.chart-legend{display:flex;gap:16px;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#475569}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+.chart-body{position:relative}
+.chart-grid{border-left:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;padding:10px 0 0 50px;position:relative}
+.y-labels{position:absolute;left:0;top:0;display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:10px 0}
+.y-label{font-size:10px;color:#94a3b8;text-align:right;width:44px;transform:translateY(-50%)}
+.chart-bars{display:flex;align-items:flex-end;gap:0;height:200px;padding:0 10px}
+.month-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:0}
+.bar-pair{display:flex;align-items:flex-end;gap:4px;width:100%;justify-content:center}
+.bar{border-radius:3px 3px 0 0;min-height:2px;transition:opacity .15s;cursor:pointer;position:relative}
+.bar:hover::after{content:attr(data-tip);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;white-space:nowrap;margin-bottom:4px;z-index:10}
+.bar-dep{background:#16a34a}
+.bar-exp{background:#dc2626}
+.bar-amex{background:#f59e0b}
+.month-label{font-size:11px;color:#94a3b8;margin-top:6px;text-align:center}
+.grid-line{position:absolute;left:0;right:0;border-top:1px dashed #f1f5f9}
+
+/* Category breakdown chart */
+.cat-chart{display:flex;flex-direction:column;gap:6px}
+.cat-row{display:flex;align-items:center;gap:8px}
+.cat-name{font-size:11px;color:#475569;width:110px;flex-shrink:0;text-align:right}
+.cat-bar-wrap{flex:1;height:14px;background:#f1f5f9;border-radius:3px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.cat-val{font-size:11px;color:#0f172a;font-weight:600;width:60px;text-align:right;flex-shrink:0}
+
+.search-wrap{position:relative;margin-bottom:12px}
+.search-wrap input{width:100%;padding:8px 12px 8px 32px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;color:#0f172a}
+.search-wrap input:focus{border-color:#0f172a}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:14px}
+
+.amex-note{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#d97706;background:#fef3c7;padding:2px 8px;border-radius:4px;font-weight:500}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🍕</div>
+    <div>
+      <h1>PizzaTwist <span style="font-weight:400">— Accounts Dashboard</span></h1>
+      <div class="logo" style="gap:6px;margin-top:1px"><span>Fork &amp; Flame LLC · Fifth Third Bank x1235 · Amex x21000</span></div>
+    </div>
+  </div>
+  <div class="header-meta">2026 · Jan – Jun (Bank) · Mar – Jun 22 (Amex)</div>
+</header>
+
+<div class="shell">
+<aside>
+  <div>
+    <div class="card-title" style="padding:0 4px">Select Month</div>
+    <div class="month-tabs" id="monthTabs">
+      <button class="month-tab active" data-month="Jan 2026" onclick="selectMonth(this)">January 2026</button>
+      <button class="month-tab" data-month="Feb 2026" onclick="selectMonth(this)">February 2026</button>
+      <button class="month-tab" data-month="Mar 2026" onclick="selectMonth(this)">March 2026</button>
+      <button class="month-tab" data-month="Apr 2026" onclick="selectMonth(this)">April 2026</button>
+      <button class="month-tab" data-month="May 2026" onclick="selectMonth(this)">May 2026</button>
+      <button class="month-tab" data-month="Jun 2026" onclick="selectMonth(this)">June 2026</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Account Summary</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div id="amexNote" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Deposits by Source</div>
+    <div id="depositBreakdown"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Expenses by Category</div>
+    <div id="expenseBreakdown"></div>
+  </div>
+</aside>
+
+<main>
+  <!-- Transactions -->
+  <div>
+    <div class="section-header">
+      <div class="section-title" id="txTitle">January 2026 — Transactions</div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search transactions..." id="searchInput" oninput="filterTable()">
+    </div>
+    <div class="filters" id="filterChips"></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable('date')">Date ↕</th>
+            <th onclick="sortTable('desc')">Description ↕</th>
+            <th onclick="sortTable('cat')">Category ↕</th>
+            <th>Source</th>
+            <th onclick="sortTable('amount')" style="text-align:right">Amount ↕</th>
+          </tr>
+        </thead>
+        <tbody id="txBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none">No transactions match your filter.</div>
+    </div>
+  </div>
+
+  <!-- 6-Month Bar Chart -->
+  <div class="chart-section">
+    <div class="section-header">
+      <div class="section-title">6-Month Overview — Deposits vs. Expenses</div>
+    </div>
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Bank Deposits</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Bank Expenses</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Amex Charges</div>
+    </div>
+    <div id="barChart"></div>
+  </div>
+
+  <!-- Category Breakdown Chart -->
+  <div class="chart-section">
+    <div class="section-header">
+      <div class="section-title" id="catChartTitle">January 2026 — Expense Category Breakdown</div>
+    </div>
+    <div class="cat-chart" id="catChart"></div>
+  </div>
+</main>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const SUMMARY = {
+  'Jan 2026': { deposits: 25164.25, debits: 23661.27, checks: 4671.25, amex: 0,       balance: 18572.78 },
+  'Feb 2026': { deposits: 16858.56, debits: 18420.74, checks: 5242.25, amex: 0,       balance: 11768.35 },
+  'Mar 2026': { deposits: 28195.72, debits: 19700.10, checks: 10804.25, amex: 2387.42, balance: 9459.72 },
+  'Apr 2026': { deposits: 17515.41, debits: 12629.30, checks: 6898.93,  amex: 11057.38,balance: 7446.90 },
+  'May 2026': { deposits: 17740.20, debits: 11319.89, checks: 5960.25,  amex: 3787.06, balance: 7906.96 },
+  'Jun 2026': { deposits: 21176.71, debits: 13855.86,  checks: 4491.25,   amex: 7053.13, balance: 10736.56 },
+};
+
+const DEP_SOURCES = {
+  'Jan 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount: 11523 },
+    { label:'DoorDash',      color:'#dc2626', amount: 10961 },
+    { label:'Grubhub',       color:'#f97316', amount:   153 },
+    { label:'Uber Eats',     color:'#111827', amount:     0 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:   527 },
+  ],
+  'Feb 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount:  7900 },
+    { label:'DoorDash',      color:'#dc2626', amount:  8546 },
+    { label:'Grubhub',       color:'#f97316', amount:   394 },
+    { label:'Uber Eats',     color:'#111827', amount:    16 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:     3 },
+  ],
+  'Mar 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount:  8847 },
+    { label:'DoorDash',      color:'#dc2626', amount: 10008 },
+    { label:'Grubhub',       color:'#f97316', amount:    88 },
+    { label:'Uber Eats',     color:'#111827', amount:  7193 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:  2060 },
+  ],
+  'Apr 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount:  8200 },
+    { label:'DoorDash',      color:'#dc2626', amount:  5800 },
+    { label:'Grubhub',       color:'#f97316', amount:   143 },
+    { label:'Uber Eats',     color:'#111827', amount:  1372 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:  2000 },
+  ],
+  'May 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount:  8292 },
+    { label:'DoorDash',      color:'#dc2626', amount:  7898 },
+    { label:'Grubhub',       color:'#f97316', amount:   173 },
+    { label:'Uber Eats',     color:'#111827', amount:  1077 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:   300 },
+  ],
+  'Jun 2026': [
+    { label:'Shift4 (POS)',  color:'#16a34a', amount: 12615 },
+    { label:'DoorDash',      color:'#dc2626', amount:  6506 },
+    { label:'Uber Eats',     color:'#111827', amount:  1752 },
+    { label:'Grubhub',       color:'#f97316', amount:   204 },
+    { label:'Other/Transfer',color:'#94a3b8', amount:   100 },
+  ],
+};
+
+const EXP_CATS = {
+  'Jan 2026': [
+    { label:'Inventory',       color:'#2563eb', amount:  9430 },
+    { label:'Payroll',         color:'#7c3aed', amount:  8514 },
+    { label:'Rent',            color:'#d97706', amount:  4151 },
+    { label:'Platform Fees',   color:'#6b7280', amount:  2630 },
+    { label:'Utilities',       color:'#0891b2', amount:  1791 },
+    { label:'Services & Other',color:'#475569', amount:  1466 },
+    { label:'Grocery',         color:'#ea580c', amount:   350 },
+  ],
+  'Feb 2026': [
+    { label:'Inventory',       color:'#2563eb', amount:  9203 },
+    { label:'Payroll',         color:'#7c3aed', amount:  5864 },
+    { label:'Rent',            color:'#d97706', amount:  4151 },
+    { label:'Utilities',       color:'#0891b2', amount:  1661 },
+    { label:'Services & Other',color:'#475569', amount:  2168 },
+    { label:'Platform Fees',   color:'#6b7280', amount:   616 },
+    { label:'Grocery',         color:'#ea580c', amount:   200 },
+  ],
+  'Mar 2026': [
+    { label:'Inventory',       color:'#2563eb', amount: 12187 },
+    { label:'Payroll',         color:'#7c3aed', amount:  7465 },
+    { label:'Rent',            color:'#d97706', amount:  4151 },
+    { label:'Services & Other',color:'#475569', amount:  6200 },
+    { label:'Utilities',       color:'#0891b2', amount:  1096 },
+    { label:'Grocery',         color:'#ea580c', amount:   422 },
+    { label:'Platform Fees',   color:'#6b7280', amount:   450 },
+    { label:'Advertising',     color:'#db2777', amount:   920 },
+  ],
+  'Apr 2026': [
+    { label:'Inventory',       color:'#2563eb', amount: 14000 },
+    { label:'Payroll',         color:'#7c3aed', amount:  7913 },
+    { label:'Rent',            color:'#d97706', amount:  4151 },
+    { label:'Services & Other',color:'#475569', amount:  2400 },
+    { label:'Utilities',       color:'#0891b2', amount:  1002 },
+    { label:'Grocery',         color:'#ea580c', amount:   650 },
+    { label:'Platform Fees',   color:'#6b7280', amount:   469 },
+  ],
+  'May 2026': [
+    { label:'Inventory',       color:'#2563eb', amount:  6200 },
+    { label:'Payroll',         color:'#7c3aed', amount:  6502 },
+    { label:'Rent',            color:'#d97706', amount:  4151 },
+    { label:'Services & Other',color:'#475569', amount:  2584 },
+    { label:'Utilities',       color:'#0891b2', amount:   820 },
+    { label:'Advertising',     color:'#db2777', amount:   475 },
+    { label:'Platform Fees',   color:'#6b7280', amount:   485 },
+    { label:'Grocery',         color:'#ea580c', amount:   350 },
+  ],
+  'Jun 2026': [
+    { label:'Inventory',       color:'#2563eb', amount: 10365 },
+    { label:'Payroll',         color:'#7c3aed', amount:  6296 },
+    { label:'Rent',            color:'#d97706', amount:  4491 },
+    { label:'Services & Other',color:'#475569', amount:  1393 },
+    { label:'Advertising',     color:'#db2777', amount:  1178 },
+    { label:'Utilities',       color:'#0891b2', amount:   997 },
+    { label:'Platform Fees',   color:'#6b7280', amount:   492 },
+    { label:'Grocery',         color:'#ea580c', amount:   305 },
+  ],
+};
+
+// Cat color map
+const CAT_COLORS = {
+  'Inventory':        '#2563eb',
+  'Payroll':          '#7c3aed',
+  'Rent':             '#d97706',
+  'Utilities':        '#0891b2',
+  'Platform Fees':    '#6b7280',
+  'Grocery':          '#ea580c',
+  'Advertising':      '#db2777',
+  'Services & Other': '#475569',
+  'Shift4 (POS)':     '#16a34a',
+  'DoorDash':         '#dc2626',
+  'Uber Eats':        '#111827',
+  'Grubhub':          '#f97316',
+  'Other':            '#94a3b8',
+};
+
+// ─── TRANSACTIONS ─────────────────────────────────────────────────────────────
+// Format: [date, description, category, source, amount]
+// source: 'Bank' | 'Amex'
+
+const TX = {
+'Jan 2026': [
+  ['2026-01-05','DoorDash Inc.','DoorDash','Bank',4022.27],
+  ['2026-01-15','DoorDash Inc.','DoorDash','Bank',2913.03],
+  ['2026-01-16','DoorDash Inc.','DoorDash','Bank',2534.26],
+  ['2026-01-23','DoorDash Inc.','DoorDash','Bank',2492.61],
+  ['2026-01-26','5/3 Online Transfer','Other','Bank',2483.75],
+  ['2026-01-30','DoorDash Inc.','DoorDash','Bank',1813.93],
+  ['2026-01-12','Shift4 PYMT','Shift4 (POS)','Bank',690.52],
+  ['2026-01-05','Shift4 PYMT','Shift4 (POS)','Bank',644.07],
+  ['2026-01-05','Shift4 PYMT','Shift4 (POS)','Bank',636.26],
+  ['2026-01-02','Shift4 PYMT','Shift4 (POS)','Bank',673.40],
+  ['2026-01-12','Shift4 PYMT','Shift4 (POS)','Bank',469.71],
+  ['2026-01-20','Shift4 PYMT','Shift4 (POS)','Bank',273.31],
+  ['2026-01-20','Shift4 PYMT','Shift4 (POS)','Bank',284.83],
+  ['2026-01-20','Shift4 PYMT','Shift4 (POS)','Bank',310.36],
+  ['2026-01-20','Shift4 PYMT','Shift4 (POS)','Bank',327.93],
+  ['2026-01-09','Shift4 PYMT','Shift4 (POS)','Bank',140.30],
+  ['2026-01-02','Grubhub Inc.','Grubhub','Bank',80.38],
+  ['2026-01-09','Grubhub Inc.','Grubhub','Bank',16.37],
+  ['2026-01-23','Grubhub Inc.','Grubhub','Bank',43.89],
+  ['2026-01-30','Grubhub Inc.','Grubhub','Bank',12.47],
+  // Expenses
+  ['2026-01-05','Fork & Flame Payroll','Payroll','Bank',-5421.90],
+  ['2026-01-08','Authentic Food Inc. (Dough Mix)','Inventory','Bank',-5000.00],
+  ['2026-01-13','Rent — Check 9001','Rent','Bank',-4151.25],
+  ['2026-01-20','Fork & Flame Payroll','Payroll','Bank',-3092.56],
+  ['2026-01-29','Authentic Food Inc.','Inventory','Bank',-1839.70],
+  ['2026-01-09','DoorDash Fees','Platform Fees','Bank',-1918.74],
+  ['2026-01-28','Columbia Gas','Utilities','Bank',-845.80],
+  ['2026-01-12','Authentic Food Inc.','Inventory','Bank',-885.72],
+  ['2026-01-02','Authentic Food Inc. (Dough Mix)','Inventory','Bank',-546.96],
+  ['2026-01-02','Columbia Gas','Utilities','Bank',-574.34],
+  ['2026-01-02','Shift4 Fees','Platform Fees','Bank',-425.83],
+  ['2026-01-23','Ohio Sales Tax (OHSALESUTX)','Utilities','Bank',-371.08],
+  ['2026-01-12','Unique Products & Co.','Inventory','Bank',-367.42],
+  ['2026-01-05','Shift4 EDI Fee','Platform Fees','Bank',-285.57],
+  ['2026-01-06','Creation Gardens (Produce)','Inventory','Bank',-221.35],
+  ['2026-01-20','Creation Gardens (Produce)','Inventory','Bank',-197.20],
+  ['2026-01-02','Ohio COMDOLC Utilities','Utilities','Bank',-376.00],
+  ['2026-01-14','Cintas Corp. (Linen/Uniforms)','Services & Other','Bank',-168.53],
+  ['2026-01-02','Amazon (Supplies)','Services & Other','Bank',-167.84],
+  ['2026-01-21','GFS Store (Food Service)','Inventory','Bank',-113.97],
+  ['2026-01-12','GFS Store (Food Service)','Inventory','Bank',-86.96],
+  ['2026-01-21','What Chefs','Inventory','Bank',-110.00],
+  ['2026-01-27','Creation Gardens (Produce)','Inventory','Bank',-61.30],
+  ['2026-01-07','Rent — Check 226','Rent','Bank',-120.00],
+  ['2026-01-21','Rent — Check 228','Rent','Bank',-400.00],
+  ['2026-01-20','Walmart','Grocery','Bank',-32.46],
+  ['2026-01-02','Costco Wholesale','Grocery','Bank',-41.01],
+  ['2026-01-09','Meijer Store','Grocery','Bank',-2.99],
+  ['2026-01-02','Walmart Supercenter','Grocery','Bank',-4.98],
+  ['2026-01-07','Slick Whiskers (Supplies)','Services & Other','Bank',-79.00],
+  ['2026-01-13','Amazon (Supplies)','Services & Other','Bank',-28.55],
+  ['2026-01-20','Amazon (Supplies)','Services & Other','Bank',-27.80],
+],
+'Feb 2026': [
+  ['2026-02-06','DoorDash Inc.','DoorDash','Bank',2298.77],
+  ['2026-02-13','DoorDash Inc.','DoorDash','Bank',2299.97],
+  ['2026-02-20','DoorDash Inc.','DoorDash','Bank',2256.44],
+  ['2026-02-27','DoorDash Inc.','DoorDash','Bank',1691.15],
+  ['2026-02-02','Shift4 PYMT','Shift4 (POS)','Bank',478.11],
+  ['2026-02-02','Shift4 PYMT','Shift4 (POS)','Bank',424.10],
+  ['2026-02-02','Shift4 PYMT','Shift4 (POS)','Bank',110.23],
+  ['2026-02-09','Shift4 PYMT','Shift4 (POS)','Bank',305.80],
+  ['2026-02-09','Shift4 PYMT','Shift4 (POS)','Bank',349.02],
+  ['2026-02-09','Shift4 PYMT','Shift4 (POS)','Bank',608.38],
+  ['2026-02-10','Shift4 PYMT','Shift4 (POS)','Bank',236.34],
+  ['2026-02-11','Shift4 PYMT','Shift4 (POS)','Bank',285.15],
+  ['2026-02-12','Shift4 PYMT','Shift4 (POS)','Bank',231.57],
+  ['2026-02-17','Shift4 PYMT','Shift4 (POS)','Bank',154.72],
+  ['2026-02-17','Shift4 PYMT','Shift4 (POS)','Bank',294.47],
+  ['2026-02-17','Shift4 PYMT','Shift4 (POS)','Bank',391.79],
+  ['2026-02-17','Shift4 PYMT','Shift4 (POS)','Bank',670.70],
+  ['2026-02-06','Grubhub Inc.','Grubhub','Bank',17.59],
+  ['2026-02-06','Grubhub Inc.','Grubhub','Bank',49.90],
+  ['2026-02-20','Grubhub Inc.','Grubhub','Bank',18.71],
+  ['2026-02-13','Grubhub Inc.','Grubhub','Bank',190.80],
+  ['2026-02-27','Grubhub Inc.','Grubhub','Bank',82.08],
+  ['2026-02-03','Uber Eats (Wing Inferno)','Uber Eats','Bank',15.99],
+  ['2026-02-26','Payoneer (Reissue)','Other','Bank',291.80],
+  // Expenses
+  ['2026-02-05','Fork & Flame Payroll','Payroll','Bank',-2922.46],
+  ['2026-02-20','Fork & Flame Payroll','Payroll','Bank',-2941.36],
+  ['2026-02-17','Authentic Food Inc.','Inventory','Bank',-3512.28],
+  ['2026-02-11','Authentic Food Inc.','Inventory','Bank',-1222.06],
+  ['2026-02-19','Chicagos Pizza (Chicago Supplier)','Inventory','Bank',-1253.43],
+  ['2026-02-19','Chicagos Pizza (Chicago Supplier)','Inventory','Bank',-303.91],
+  ['2026-02-19','Chicagos Pizza (Chicago Supplier)','Inventory','Bank',-221.83],
+  ['2026-02-03','Restaurant Depot','Inventory','Bank',-1223.97],
+  ['2026-02-17','Rent — Check 9002','Rent','Bank',-4151.25],
+  ['2026-02-26','Columbia Gas','Utilities','Bank',-1062.94],
+  ['2026-02-09','AEP Columbus (Electric)','Utilities','Bank',-597.71],
+  ['2026-02-09','Costco Wholesale','Grocery','Bank',-194.38],
+  ['2026-02-10','Creation Gardens (Produce)','Inventory','Bank',-180.90],
+  ['2026-02-24','Creation Gardens (Produce)','Inventory','Bank',-290.61],
+  ['2026-02-17','Creation Gardens (Produce)','Inventory','Bank',-189.85],
+  ['2026-02-24','Creation Gardens (Produce)','Inventory','Bank',-100.65],
+  ['2026-02-17','Chicagos Pizza F Sale','Inventory','Bank',-308.56],
+  ['2026-02-24','Chicagos Pizza F Sale','Inventory','Bank',-290.61],
+  ['2026-02-23','Spectrum (Internet)','Services & Other','Bank',-143.95],
+  ['2026-02-11','Cintas Corp.','Services & Other','Bank',-138.04],
+  ['2026-02-02','Shift4 Fees','Platform Fees','Bank',-165.50],
+  ['2026-02-13','Shift4 Fees','Platform Fees','Bank',-165.00],
+  ['2026-02-03','Shift4 EDI Fee','Platform Fees','Bank',-285.57],
+  ['2026-02-02','Pro-Tech Advisors','Services & Other','Bank',-89.99],
+  ['2026-02-17','GFS Store','Inventory','Bank',-22.99],
+  ['2026-02-17','GFS Store','Inventory','Bank',-45.78],
+  ['2026-02-27','GFS Store','Inventory','Bank',-34.76],
+  ['2026-02-09','Best Buy (Equipment)','Services & Other','Bank',-107.99],
+  ['2026-02-17','Giant Eagle','Grocery','Bank',-35.30],
+  ['2026-02-23','Giant Eagle','Grocery','Bank',-39.41],
+  ['2026-02-17','Rent — Check 104','Rent','Bank',-646.00],
+  ['2026-02-20','Rent — Check 106','Rent','Bank',-370.00],
+  ['2026-02-23','OHSALESUTX / Ohio Tax','Utilities','Bank',-140.59],
+  ['2026-02-20','Amazon (Supplies)','Services & Other','Bank',-37.50],
+  ['2026-02-24','Amazon (Supplies)','Services & Other','Bank',-83.40],
+  ['2026-02-02','Kroger','Grocery','Bank',-13.36],
+],
+'Mar 2026': [
+  ['2026-03-06','DoorDash Inc.','DoorDash','Bank',2611.52],
+  ['2026-03-13','DoorDash Inc.','DoorDash','Bank',2446.55],
+  ['2026-03-20','DoorDash Inc.','DoorDash','Bank',2175.61],
+  ['2026-03-27','DoorDash Inc.','DoorDash','Bank',2110.95],
+  ['2026-03-13','DoorDash Inc.','DoorDash','Bank',214.14],
+  ['2026-03-24','Uber Eats','Uber Eats','Bank',6955.07],
+  ['2026-03-31','Uber Eats','Uber Eats','Bank',238.36],
+  ['2026-03-03','5/3 Online Transfer','Other','Bank',2000.00],
+  ['2026-03-02','Shift4 PYMT','Shift4 (POS)','Bank',404.29],
+  ['2026-03-02','Shift4 PYMT','Shift4 (POS)','Bank',453.91],
+  ['2026-03-02','Shift4 PYMT','Shift4 (POS)','Bank',505.42],
+  ['2026-03-06','Shift4 PYMT','Shift4 (POS)','Bank',376.41],
+  ['2026-03-09','Shift4 PYMT','Shift4 (POS)','Bank',229.39],
+  ['2026-03-09','Shift4 PYMT','Shift4 (POS)','Bank',316.95],
+  ['2026-03-09','Shift4 PYMT','Shift4 (POS)','Bank',591.59],
+  ['2026-03-16','Shift4 PYMT','Shift4 (POS)','Bank',185.74],
+  ['2026-03-16','Shift4 PYMT','Shift4 (POS)','Bank',406.81],
+  ['2026-03-16','Shift4 PYMT','Shift4 (POS)','Bank',563.97],
+  ['2026-03-20','Shift4 PYMT','Shift4 (POS)','Bank',748.72],
+  ['2026-03-02','Grubhub Inc.','Grubhub','Bank',30.56],
+  ['2026-03-13','Grubhub Inc.','Grubhub','Bank',17.59],
+  ['2026-03-27','Grubhub Inc.','Grubhub','Bank',39.84],
+  ['2026-03-24','GFS Store Credit','Other','Bank',59.91],
+  // Expenses
+  ['2026-03-05','Fork & Flame Payroll','Payroll','Bank',-2922.46],
+  ['2026-03-20','Fork & Flame Payroll','Payroll','Bank',-4542.30],
+  ['2026-03-06','Rent — Check 9003','Rent','Bank',-4151.25],
+  ['2026-03-04','Restaurant Depot','Inventory','Bank',-1263.45],
+  ['2026-03-09','Restaurant Depot','Inventory','Bank',-920.12],
+  ['2026-03-02','Authentic Food Inc.','Inventory','Bank',-2226.37],
+  ['2026-03-02','Authentic Food Inc.','Inventory','Bank',-589.52],
+  ['2026-03-11','Authentic Food Inc.','Inventory','Bank',-567.88],
+  ['2026-03-11','Authentic Food Inc.','Inventory','Bank',-629.86],
+  ['2026-03-03','Chicagos Pizza F Sale','Inventory','Bank',-247.08],
+  ['2026-03-10','Chicagos Pizza F Sale','Inventory','Bank',-140.74],
+  ['2026-03-10','Chicagos Pizza F Sale','Inventory','Bank',-216.63],
+  ['2026-03-16','Chicagos Pizza F Sale','Inventory','Bank',-1184.29],
+  ['2026-03-17','Chicagos Pizza F Sale','Inventory','Bank',-305.18],
+  ['2026-03-24','Chicagos Pizza F Sale','Inventory','Bank',-297.76],
+  ['2026-03-31','Chicagos Pizza F Sale','Inventory','Bank',-296.11],
+  ['2026-03-30','Columbia Gas','Utilities','Bank',-497.62],
+  ['2026-03-04','AMER Electric Power (AEP)','Utilities','Bank',-453.75],
+  ['2026-03-24','OHSALESUTX / Ohio Tax','Utilities','Bank',-144.37],
+  ['2026-03-03','Creation Gardens (Produce)','Inventory','Bank',-194.20],
+  ['2026-03-11','Creation Gardens (Produce)','Inventory','Bank',-225.15],
+  ['2026-03-24','Creation Gardens (Produce)','Inventory','Bank',-55.85],
+  ['2026-03-31','Creation Gardens (Produce)','Inventory','Bank',-97.55],
+  ['2026-03-31','Creation Gardens (Produce)','Inventory','Bank',-296.11],
+  ['2026-03-18','GFS Store','Inventory','Bank',-130.74],
+  ['2026-03-24','GFS Store','Inventory','Bank',-45.57],
+  ['2026-03-24','GFS Store','Inventory','Bank',-110.20],
+  ['2026-03-31','GFS Store','Inventory','Bank',-17.64],
+  ['2026-03-12','Cintas Corp.','Services & Other','Bank',-138.04],
+  ['2026-03-02','Shift4 Fees','Platform Fees','Bank',-164.66],
+  ['2026-03-03','Shift4 EDI Fee','Platform Fees','Bank',-285.57],
+  ['2026-03-10','State Farm Insurance','Services & Other','Bank',-225.08],
+  ['2026-03-05','Pro-Tech Advisors','Services & Other','Bank',-89.99],
+  ['2026-03-30','Pro-Tech Advisors','Services & Other','Bank',-99.99],
+  ['2026-03-10','DRI*Uprinting','Advertising','Bank',-74.43],
+  ['2026-03-25','Minuteman Press','Advertising','Bank',-93.46],
+  ['2026-03-13','Kroger','Grocery','Bank',-4.38],
+  ['2026-03-20','Meijer Store','Grocery','Bank',-19.23],
+  ['2026-03-31','Meijer Store','Grocery','Bank',-39.62],
+  ['2026-03-20','Trinethra Indian Supermarket','Grocery','Bank',-15.16],
+  ['2026-03-06','Trinethra Indian Supermarket','Grocery','Bank',-11.29],
+  ['2026-03-16','Rent — Check 0000','Rent','Bank',-2000.00],
+  ['2026-03-27','Rent — Check 0000','Rent','Bank',-2000.00],
+  ['2026-03-23','Rent — Check 230','Rent','Bank',-500.00],
+  ['2026-03-10','Check 231','Services & Other','Bank',-1275.00],
+  ['2026-03-27','Rent — Check 181','Rent','Bank',-133.00],
+  // Amex (Mar closing 03/23)
+  ['2026-03-11','Authentic Food Inc. (Dough Mix)','Inventory','Amex',-807.97],
+  ['2026-03-14','Kroger','Grocery','Amex',-17.69],
+  ['2026-03-17','Authentic Food Inc.','Inventory','Amex',-728.15],
+  ['2026-03-18','Authentic Food Inc.','Inventory','Amex',-833.61],
+],
+'Apr 2026': [
+  ['2026-04-03','DoorDash Inc.','DoorDash','Bank',1509.26],
+  ['2026-04-10','DoorDash Inc.','DoorDash','Bank',1807.40],
+  ['2026-04-17','DoorDash Inc.','DoorDash','Bank',1569.84],
+  ['2026-04-24','DoorDash Inc.','DoorDash','Bank',2135.25],
+  ['2026-04-07','Uber Eats','Uber Eats','Bank',128.59],
+  ['2026-04-14','Uber Eats','Uber Eats','Bank',492.03],
+  ['2026-04-21','Uber Eats','Uber Eats','Bank',231.60],
+  ['2026-04-28','Uber Eats','Uber Eats','Bank',161.96],
+  ['2026-04-03','Grubhub Inc.','Grubhub','Bank',33.52],
+  ['2026-04-10','Grubhub Inc.','Grubhub','Bank',18.70],
+  ['2026-04-24','Grubhub Inc.','Grubhub','Bank',69.88],
+  ['2026-04-01','Shift4 PYMT','Shift4 (POS)','Bank',255.40],
+  ['2026-04-06','Shift4 PYMT','Shift4 (POS)','Bank',517.47],
+  ['2026-04-06','Shift4 PYMT','Shift4 (POS)','Bank',651.37],
+  ['2026-04-06','Shift4 PYMT','Shift4 (POS)','Bank',692.73],
+  ['2026-04-13','Shift4 PYMT','Shift4 (POS)','Bank',206.65],
+  ['2026-04-13','Shift4 PYMT','Shift4 (POS)','Bank',500.43],
+  ['2026-04-13','Shift4 PYMT','Shift4 (POS)','Bank',513.74],
+  ['2026-04-20','Shift4 PYMT','Shift4 (POS)','Bank',366.19],
+  ['2026-04-20','Shift4 PYMT','Shift4 (POS)','Bank',404.60],
+  ['2026-04-20','Shift4 PYMT','Shift4 (POS)','Bank',503.76],
+  ['2026-04-27','Shift4 PYMT','Shift4 (POS)','Bank',344.51],
+  ['2026-04-27','Shift4 PYMT','Shift4 (POS)','Bank',358.14],
+  // Expenses
+  ['2026-04-03','Fork & Flame Payroll','Payroll','Bank',-4107.56],
+  ['2026-04-20','Fork & Flame Payroll','Payroll','Bank',-3805.01],
+  ['2026-04-14','Rent — Check 9004','Rent','Bank',-4151.25],
+  ['2026-04-02','AMER Electric Power (AEP)','Utilities','Bank',-513.38],
+  ['2026-04-27','Columbia Gas','Utilities','Bank',-334.58],
+  ['2026-04-22','OHSALESUTX / Ohio Tax','Utilities','Bank',-153.94],
+  ['2026-04-07','Creation Gardens (Produce)','Inventory','Bank',-171.85],
+  ['2026-04-21','Creation Gardens (Produce)','Inventory','Bank',-356.20],
+  ['2026-04-10','Chicagos Pizza F Sale','Inventory','Bank',-135.50],
+  ['2026-04-14','Chicagos Pizza F Sale','Inventory','Bank',-120.90],
+  ['2026-04-21','Chicagos Pizza F Sale','Inventory','Bank',-268.11],
+  ['2026-04-28','Chicagos Pizza F Sale','Inventory','Bank',-314.26],
+  ['2026-04-14','Cintas Corp.','Services & Other','Bank',-138.04],
+  ['2026-04-02','Shift4 Fees','Platform Fees','Bank',-185.90],
+  ['2026-04-02','Shift4 EDI Fee','Platform Fees','Bank',-285.57],
+  ['2026-04-17','State Farm Insurance','Services & Other','Bank',-400.16],
+  ['2026-04-10','Spectrum','Services & Other','Bank',-65.00],
+  ['2026-04-28','Pro-Tech Advisors','Services & Other','Bank',-99.99],
+  ['2026-04-27','Google Ads','Advertising','Bank',-50.00],
+  ['2026-04-28','Google Ads','Advertising','Bank',-50.00],
+  ['2026-04-14','Costco Wholesale','Grocery','Bank',-151.19],
+  ['2026-04-29','Rent — Check 0000','Rent','Bank',-2000.00],
+  ['2026-04-20','Rent — Check 234','Rent','Bank',-150.00],
+  ['2026-04-21','Rent — Check 235','Rent','Bank',-527.68],
+  // Amex (Apr closing 04/22)
+  ['2026-03-24','Authentic Food Inc.','Inventory','Amex',-834.64],
+  ['2026-03-30','CCBCC Operations','Inventory','Amex',-470.29],
+  ['2026-03-30','Restaurant Depot','Inventory','Amex',-1915.62],
+  ['2026-04-01','Authentic Food Inc.','Inventory','Amex',-960.58],
+  ['2026-04-02','Authentic Food Inc.','Inventory','Amex',-1844.42],
+  ['2026-04-09','Authentic Food Inc.','Inventory','Amex',-726.83],
+  ['2026-04-12','Restaurant Equippers Web','Inventory','Amex',-592.92],
+  ['2026-04-17','Authentic Food Inc.','Inventory','Amex',-1160.81],
+  ['2026-04-17','Authentic Food Inc.','Inventory','Amex',-181.71],
+  ['2026-04-04','Kroger','Grocery','Amex',-19.38],
+  ['2026-04-18','Restaurant Depot (Nirmala)','Inventory','Amex',-990.94],
+  ['2026-04-19','Restaurant Depot (Nirmala)','Inventory','Amex',-395.97],
+  ['2026-04-21','Authentic Food Inc. (Nirmala)','Inventory','Amex',-668.56],
+  ['2026-04-22','Meijer Store','Grocery','Amex',-12.77],
+  ['2026-04-14','SME Food LLC','Inventory','Amex',-50.25],
+  ['2026-04-20','The Webrestaurant Store','Services & Other','Amex',-67.85],
+  ['2026-04-14','VCN Delaware Health Dist.','Services & Other','Amex',-128.49],
+  ['2026-04-15','Walmart','Grocery','Amex',-18.16],
+],
+'May 2026': [
+  ['2026-05-01','DoorDash Inc.','DoorDash','Bank',1697.30],
+  ['2026-05-08','DoorDash Inc.','DoorDash','Bank',1565.27],
+  ['2026-05-15','DoorDash Inc.','DoorDash','Bank',1565.29],
+  ['2026-05-22','DoorDash Inc.','DoorDash','Bank',1737.02],
+  ['2026-05-29','DoorDash Inc.','DoorDash','Bank',1567.87],
+  ['2026-05-01','DoorDash Inc. (Fork Flame)','DoorDash','Bank',20.53],
+  ['2026-05-08','DoorDash Inc.','DoorDash','Bank',44.01],
+  ['2026-05-05','Uber Eats','Uber Eats','Bank',397.20],
+  ['2026-05-12','Uber Eats','Uber Eats','Bank',187.77],
+  ['2026-05-19','Uber Eats','Uber Eats','Bank',275.96],
+  ['2026-05-27','Uber Eats','Uber Eats','Bank',216.06],
+  ['2026-05-08','Grubhub Inc.','Grubhub','Bank',16.37],
+  ['2026-05-08','Grubhub Inc.','Grubhub','Bank',40.19],
+  ['2026-05-22','Grubhub Inc.','Grubhub','Bank',39.74],
+  ['2026-05-29','Grubhub Inc.','Grubhub','Bank',76.97],
+  ['2026-05-04','Shift4 PYMT','Shift4 (POS)','Bank',183.86],
+  ['2026-05-04','Shift4 PYMT','Shift4 (POS)','Bank',253.40],
+  ['2026-05-04','Shift4 PYMT','Shift4 (POS)','Bank',383.53],
+  ['2026-05-05','Shift4 PYMT','Shift4 (POS)','Bank',139.87],
+  ['2026-05-06','Shift4 PYMT','Shift4 (POS)','Bank',184.14],
+  ['2026-05-11','Shift4 PYMT','Shift4 (POS)','Bank',260.98],
+  ['2026-05-11','Shift4 PYMT','Shift4 (POS)','Bank',314.96],
+  ['2026-05-11','Shift4 PYMT','Shift4 (POS)','Bank',554.20],
+  ['2026-05-18','Shift4 PYMT','Shift4 (POS)','Bank',287.09],
+  ['2026-05-18','Shift4 PYMT','Shift4 (POS)','Bank',289.34],
+  ['2026-05-18','Shift4 PYMT','Shift4 (POS)','Bank',726.22],
+  ['2026-05-26','Shift4 PYMT','Shift4 (POS)','Bank',318.81],
+  ['2026-05-26','Shift4 PYMT','Shift4 (POS)','Bank',411.81],
+  ['2026-05-26','Shift4 PYMT','Shift4 (POS)','Bank',839.26],
+  // Expenses
+  ['2026-05-05','Fork & Flame Payroll','Payroll','Bank',-3818.72],
+  ['2026-05-20','Fork & Flame Payroll','Payroll','Bank',-2683.63],
+  ['2026-05-08','Rent — Check 9005','Rent','Bank',-4151.25],
+  ['2026-05-05','Chicagos Pizza F Sale','Inventory','Bank',-248.74],
+  ['2026-05-07','Chicagos Pizza F Sale','Inventory','Bank',-79.28],
+  ['2026-05-12','Chicagos Pizza F Sale','Inventory','Bank',-230.13],
+  ['2026-05-19','Chicagos Pizza F Sale','Inventory','Bank',-232.31],
+  ['2026-05-26','Chicagos Pizza F Sale','Inventory','Bank',-261.98],
+  ['2026-05-28','Columbia Gas','Utilities','Bank',-219.05],
+  ['2026-05-04','AMER Electric Power (AEP)','Utilities','Bank',-600.93],
+  ['2026-05-27','Creation Gardens (Produce)','Inventory','Bank',-229.30],
+  ['2026-05-19','Cintas Corp.','Services & Other','Bank',-172.55],
+  ['2026-05-04','Shift4 Fees','Platform Fees','Bank',-185.84],
+  ['2026-05-04','Shift4 EDI Fee','Platform Fees','Bank',-299.57],
+  ['2026-05-26','OHSALESUTX / Ohio Tax','Utilities','Bank',-118.74],
+  ['2026-05-11','Spectrum','Services & Other','Bank',-65.00],
+  ['2026-05-28','Pro-Tech Advisors','Services & Other','Bank',-99.99],
+  ['2026-05-28','Pro-Tech Advisors','Services & Other','Bank',-99.99],
+  ['2026-05-18','State Farm Insurance','Services & Other','Bank',-200.08],
+  ['2026-05-11','Amazon (Supplies)','Services & Other','Bank',-116.08],
+  ['2026-05-21','Amazon (Supplies)','Services & Other','Bank',-127.58],
+  ['2026-05-26','Silco Fire & Security','Services & Other','Bank',-501.91],
+  ['2026-05-04','Google Ads','Advertising','Bank',-21.46],
+  ['2026-05-11','Google Ads','Advertising','Bank',-100.00],
+  ['2026-05-29','Google Ads','Advertising','Bank',-200.00],
+  ['2026-05-04','Rent — Check 237','Rent','Bank',-750.00],
+  ['2026-05-01','Rent — Check 236','Rent','Bank',-120.00],
+  ['2026-05-20','Rent — Check 239','Rent','Bank',-370.00],
+  ['2026-05-20','Rent — Check 241','Rent','Bank',-419.00],
+  ['2026-05-28','Premier Cash Concession / Pizza','Services & Other','Bank',-231.55],
+  // Amex (May closing 05/22)
+  ['2026-05-11','Restaurant Depot','Inventory','Amex',-1216.87],
+  ['2026-04-28','Authentic Food Inc. (Nirmala)','Inventory','Amex',-1159.01],
+  ['2026-05-12','Authentic Food Inc. (Nirmala)','Inventory','Amex',-1084.34],
+  ['2026-05-21','GFS Store','Inventory','Amex',-65.95],
+  ['2026-05-14','GFS Store','Inventory','Amex',-13.49],
+  ['2026-04-28','SME Food LLC','Inventory','Amex',-47.75],
+  ['2026-05-16','SME Food LLC','Inventory','Amex',-5.49],
+  ['2026-05-14','ALDI','Grocery','Amex',-14.56],
+  ['2026-05-12','Trinethra Indian Supermarket','Grocery','Amex',-15.96],
+  ['2026-05-19','Trinethra Indian Supermarket','Grocery','Amex',-11.98],
+  ['2026-04-23','Meijer Store','Grocery','Amex',-40.64],
+  ['2026-05-12','Giant Eagle','Grocery','Amex',-30.30],
+  ['2026-05-02','Kroger','Grocery','Amex',-2.29],
+  ['2026-05-16','Kroger','Grocery','Amex',-10.27],
+  ['2026-05-19','Kroger','Grocery','Amex',-2.69],
+  ['2026-05-03','United Dairy Farmers','Grocery','Amex',-9.38],
+  ['2026-05-10','United Dairy Farmers','Grocery','Amex',-9.38],
+  ['2026-05-16','Meijer Store','Grocery','Amex',-7.03],
+  ['2026-05-17','Facebook Ads','Advertising','Amex',-2.00],
+  ['2026-05-18','Facebook Ads','Advertising','Amex',-6.00],
+  ['2026-05-20','Facebook Ads','Advertising','Amex',-8.00],
+  ['2026-05-22','Facebook Ads','Advertising','Amex',-5.00],
+  ['2026-05-10','The Home Depot','Services & Other','Amex',-18.68],
+],
+'Jun 2026': [
+  // ── Bank deposits ──
+  ['2026-06-01','Shift4 PYMT','Shift4 (POS)','Bank',488.34],
+  ['2026-06-01','Shift4 PYMT','Shift4 (POS)','Bank',475.88],
+  ['2026-06-01','Shift4 PYMT','Shift4 (POS)','Bank',175.25],
+  ['2026-06-02','Shift4 PYMT','Shift4 (POS)','Bank',150.39],
+  ['2026-06-02','Uber Eats','Uber Eats','Bank',302.13],
+  ['2026-06-03','Shift4 PYMT','Shift4 (POS)','Bank',66.99],
+  ['2026-06-04','Shift4 PYMT','Shift4 (POS)','Bank',248.36],
+  ['2026-06-05','Shift4 PYMT','Shift4 (POS)','Bank',246.44],
+  ['2026-06-05','DoorDash Inc.','DoorDash','Bank',1546.84],
+  ['2026-06-05','Grubhub Inc.','Grubhub','Bank',53.97],
+  ['2026-06-05','DoorDash (Fork Flame)','DoorDash','Bank',10.33],
+  ['2026-06-05','Pro-Tech Refund','Other','Bank',99.99],
+  ['2026-06-08','Shift4 PYMT','Shift4 (POS)','Bank',626.37],
+  ['2026-06-08','Shift4 PYMT','Shift4 (POS)','Bank',561.77],
+  ['2026-06-08','Shift4 PYMT','Shift4 (POS)','Bank',471.34],
+  ['2026-06-09','Shift4 PYMT','Shift4 (POS)','Bank',246.09],
+  ['2026-06-09','Uber Eats','Uber Eats','Bank',404.93],
+  ['2026-06-10','Shift4 PYMT','Shift4 (POS)','Bank',147.45],
+  ['2026-06-11','Shift4 PYMT','Shift4 (POS)','Bank',253.02],
+  ['2026-06-12','Shift4 PYMT','Shift4 (POS)','Bank',209.17],
+  ['2026-06-12','DoorDash Inc.','DoorDash','Bank',1431.01],
+  ['2026-06-12','DoorDash (Fork Flame)','DoorDash','Bank',17.69],
+  ['2026-06-15','Shift4 PYMT','Shift4 (POS)','Bank',477.45],
+  ['2026-06-15','Shift4 PYMT','Shift4 (POS)','Bank',370.82],
+  ['2026-06-15','Shift4 PYMT','Shift4 (POS)','Bank',337.64],
+  ['2026-06-16','Shift4 PYMT','Shift4 (POS)','Bank',210.65],
+  ['2026-06-16','Uber Eats','Uber Eats','Bank',490.25],
+  ['2026-06-17','Shift4 PYMT','Shift4 (POS)','Bank',201.50],
+  ['2026-06-18','Shift4 PYMT','Shift4 (POS)','Bank',673.02],
+  ['2026-06-22','Shift4 PYMT','Shift4 (POS)','Bank',1041.07],
+  ['2026-06-22','Shift4 PYMT','Shift4 (POS)','Bank',1011.69],
+  ['2026-06-22','Shift4 PYMT','Shift4 (POS)','Bank',490.46],
+  ['2026-06-22','Shift4 PYMT','Shift4 (POS)','Bank',422.72],
+  ['2026-06-22','DoorDash Inc.','DoorDash','Bank',1885.81],
+  ['2026-06-22','DoorDash (Fork Flame)','DoorDash','Bank',28.86],
+  ['2026-06-23','Shift4 PYMT','Shift4 (POS)','Bank',33.17],
+  ['2026-06-23','Uber Eats','Uber Eats','Bank',301.86],
+  ['2026-06-24','Shift4 PYMT','Shift4 (POS)','Bank',356.38],
+  ['2026-06-25','Shift4 PYMT','Shift4 (POS)','Bank',181.12],
+  ['2026-06-26','Shift4 PYMT','Shift4 (POS)','Bank',251.80],
+  ['2026-06-26','DoorDash Inc.','DoorDash','Bank',1585.53],
+  ['2026-06-26','Grubhub Inc.','Grubhub','Bank',149.95],
+  ['2026-06-29','Shift4 PYMT','Shift4 (POS)','Bank',826.13],
+  ['2026-06-29','Shift4 PYMT','Shift4 (POS)','Bank',681.55],
+  ['2026-06-29','Shift4 PYMT','Shift4 (POS)','Bank',604.07],
+  ['2026-06-30','Shift4 PYMT','Shift4 (POS)','Bank',76.65],
+  ['2026-06-30','Uber Eats','Uber Eats','Bank',252.81],
+  // ── Bank expenses ──
+  ['2026-06-01','Shift4 Fees','Platform Fees','Bank',-185.18],
+  ['2026-06-01','Google Ads','Advertising','Bank',-71.54],
+  ['2026-06-01','Facebook Ads','Advertising','Bank',-200.00],
+  ['2026-06-01','Amazon (Supplies)','Services & Other','Bank',-56.64],
+  ['2026-06-01','Home Depot','Services & Other','Bank',-10.67],
+  ['2026-06-02','AEP Electric','Utilities','Bank',-660.95],
+  ['2026-06-02','Shift4 EDI Fee','Platform Fees','Bank',-299.57],
+  ['2026-06-02','Chicagos Pizza F Sale','Inventory','Bank',-261.78],
+  ['2026-06-02','Rent — Check 242','Rent','Bank',-340.00],
+  ['2026-06-03','Premier Cash Conc','Services & Other','Bank',-340.60],
+  ['2026-06-05','Fork & Flame Payroll','Payroll','Bank',-2954.91],
+  ['2026-06-08','Amex Payment','Services & Other','Bank',-171.00],
+  ['2026-06-09','Spectrum (Internet)','Services & Other','Bank',-65.00],
+  ['2026-06-09','Chicagos Pizza F Sale','Inventory','Bank',-257.01],
+  ['2026-06-09','Creation Gardens','Inventory','Bank',-120.25],
+  ['2026-06-10','Facebook Ads','Advertising','Bank',-200.00],
+  ['2026-06-10','Chicagos Pizza F Sale','Inventory','Bank',-91.27],
+  ['2026-06-16','Chicagos Pizza F Sale','Inventory','Bank',-277.05],
+  ['2026-06-16','Creation Gardens','Inventory','Bank',-31.45],
+  ['2026-06-16','State Farm','Services & Other','Bank',-200.08],
+  ['2026-06-17','Rent — Check 9006','Rent','Bank',-4151.25],
+  ['2026-06-17','Premier Cash Conc','Services & Other','Bank',-197.20],
+  ['2026-06-18','Fork & Flame Payroll','Payroll','Bank',-3341.49],
+  ['2026-06-20','DoorDash Platform Fee','Platform Fees','Bank',-7.50],
+  ['2026-06-21','Authentic Food Inc.','Inventory','Bank',-1628.68],
+  ['2026-06-23','Chicagos Pizza F Sale','Inventory','Bank',-278.79],
+  ['2026-06-24','Facebook Ads','Advertising','Bank',-150.00],
+  ['2026-06-24','Authentic Food Inc.','Inventory','Bank',-218.66],
+  ['2026-06-24','Ohio Sales Tax (OHSALESUTX)','Utilities','Bank',-116.77],
+  ['2026-06-25','Columbia Gas','Utilities','Bank',-219.53],
+  ['2026-06-27','Pro-Tech Advisors','Services & Other','Bank',-99.99],
+  ['2026-06-29','Authentic Food Inc.','Inventory','Bank',-681.39],
+  ['2026-06-29','International Trans Fee','Services & Other','Bank',-3.00],
+  ['2026-06-30','MSC (Supplies)','Services & Other','Bank',-79.74],
+  ['2026-06-30','Chicagos Pizza F Sale','Inventory','Bank',-378.17],
+  // ── Amex (Jun closing 06/22/26) ──
+  // Pratap K Nayak (6-21000)
+  ['2026-06-01','Facebook Ads','Advertising','Amex',-5.00],
+  ['2026-06-01','Facebook Ads','Advertising','Amex',-5.00],
+  ['2026-06-01','Facebook Ads','Advertising','Amex',-6.00],
+  ['2026-06-01','Facebook Ads','Advertising','Amex',-6.00],
+  ['2026-06-01','Facebook Ads','Advertising','Amex',-10.00],
+  ['2026-06-03','GDP=Signmaster (Signage)','Advertising','Amex',-524.00],
+  ['2026-06-05','Meijer Store','Grocery','Amex',-13.56],
+  ['2026-06-07','United Dairy Farmers','Grocery','Amex',-7.00],
+  ['2026-06-11','Meijer Store','Grocery','Amex',-13.79],
+  ['2026-06-14','Restaurant Depot','Inventory','Amex',-766.48],
+  ['2026-06-15','Authentic Food Inc.','Inventory','Amex',-2235.00],
+  ['2026-06-20','Meijer Store','Grocery','Amex',-3.49],
+  ['2026-06-21','Meijer Store','Grocery','Amex',-10.62],
+  ['2026-06-21','Restaurant Depot','Inventory','Amex',-974.76],
+  // Ramakrishna Kamatham (6-21018)
+  ['2026-06-04','Walmart.com','Services & Other','Amex',-139.31],
+  ['2026-06-06','Amazon Marketplace','Services & Other','Amex',-13.60],
+  ['2026-06-07','Amazon Marketplace','Services & Other','Amex',-16.19],
+  // Nirmala Sridhar (6-21026)
+  ['2026-06-01','Authentic Food Inc. (Nirmala)','Inventory','Amex',-1071.84],
+  ['2026-06-01','GFS Store (Nirmala)','Inventory','Amex',-19.48],
+  ['2026-06-03','GFS Store (Nirmala)','Inventory','Amex',-6.49],
+  ['2026-06-08','Authentic Food Inc. (Nirmala)','Inventory','Amex',-964.81],
+  ['2026-06-09','Meijer Store','Grocery','Amex',-5.19],
+  ['2026-06-09','GFS Store (Nirmala)','Inventory','Amex',-11.99],
+  ['2026-06-10','Patel Brothers (Indian Grocery)','Grocery','Amex',-71.96],
+  ['2026-06-10','Kroger','Grocery','Amex',-13.75],
+  ['2026-06-13','Kroger','Grocery','Amex',-21.11],
+  ['2026-06-18','Meijer Store','Grocery','Amex',-7.12],
+  ['2026-06-18','Kroger','Grocery','Amex',-21.96],
+  ['2026-06-18','GFS Store (Nirmala)','Inventory','Amex',-17.58],
+],
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentMonth = 'Jan 2026';
+let activeFilters = new Set();
+let sortCol = 'date';
+let sortAsc = true;
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function fmt(n){ return '$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function selectMonth(btn){
+  document.querySelectorAll('.month-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMonth = btn.dataset.month;
+  activeFilters.clear();
+  document.getElementById('searchInput').value = '';
+  render();
+}
+
+function render(){
+  renderKPIs();
+  renderDepositBreakdown();
+  renderExpenseBreakdown();
+  renderFilters();
+  renderTable();
+  renderCatChart();
+  document.getElementById('txTitle').textContent = currentMonth + ' — Transactions';
+  document.getElementById('catChartTitle').textContent = currentMonth + ' — Expense Category Breakdown';
+}
+
+function renderKPIs(){
+  const s = SUMMARY[currentMonth];
+  const bankPending = s.deposits === null;
+  const depStr  = bankPending ? '<span style="color:#94a3b8;font-size:12px">Pending</span>' : `<span class="kpi-value green">${fmt(s.deposits)}</span>`;
+  const expStr  = bankPending ? '<span style="color:#94a3b8;font-size:12px">Pending</span>' : `<span class="kpi-value red">${fmt(s.debits+s.checks)}</span>`;
+  const balStr  = bankPending ? '<span style="color:#94a3b8;font-size:12px">Pending</span>' : `<span class="kpi-value blue">${fmt(s.balance)}</span>`;
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Bank Deposits</div>${depStr}</div>
+    <div class="kpi"><div class="kpi-label">Bank Expenses</div>${expStr}</div>
+    <div class="kpi"><div class="kpi-label">Amex Charges</div><div class="kpi-value amber">${fmt(s.amex)}</div></div>
+    <div class="kpi"><div class="kpi-label">Ending Balance</div>${balStr}</div>
+  `;
+  const noteEl = document.getElementById('amexNote');
+  if(bankPending){
+    noteEl.innerHTML = `<span class="amex-note" style="background:#fef9c3;color:#854d0e">⏳ Bank statement pending — Amex through 06/22 only</span>`;
+  } else if(s.amex > 0){
+    noteEl.innerHTML = `<span class="amex-note">⚡ Amex included in expenses</span>`;
+  } else {
+    noteEl.innerHTML = '';
+  }
+}
+
+function renderDepositBreakdown(){
+  const sources = DEP_SOURCES[currentMonth];
+  if(!sources || sources.length === 0){
+    document.getElementById('depositBreakdown').innerHTML = '<div class="note">Bank statement not yet available for this period.</div>';
+    return;
+  }
+  const total = sources.reduce((s,r)=>s+r.amount,0)||1;
+  let html = '';
+  sources.filter(r=>r.amount>0).sort((a,b)=>b.amount-a.amount).forEach(r=>{
+    const pct = (r.amount/total*100).toFixed(0);
+    html += `<div class="breakdown-row">
+      <div class="breakdown-dot" style="background:${r.color}"></div>
+      <div class="breakdown-label">${r.label}</div>
+      <div class="breakdown-amount">${fmt(r.amount)}</div>
+      <div class="breakdown-pct">${pct}%</div>
+    </div>
+    <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%;background:${r.color}"></div></div>`;
+  });
+  document.getElementById('depositBreakdown').innerHTML = html;
+}
+
+function renderExpenseBreakdown(){
+  const cats = EXP_CATS[currentMonth];
+  const total = cats.reduce((s,r)=>s+r.amount,0)||1;
+  let html = '';
+  [...cats].sort((a,b)=>b.amount-a.amount).forEach(r=>{
+    const pct = (r.amount/total*100).toFixed(0);
+    html += `<div class="breakdown-row">
+      <div class="breakdown-dot" style="background:${r.color}"></div>
+      <div class="breakdown-label">${r.label}</div>
+      <div class="breakdown-amount">${fmt(r.amount)}</div>
+      <div class="breakdown-pct">${pct}%</div>
+    </div>
+    <div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%;background:${r.color}"></div></div>`;
+  });
+  document.getElementById('expenseBreakdown').innerHTML = html;
+}
+
+function renderFilters(){
+  const txs = TX[currentMonth]||[];
+  const cats = [...new Set(txs.map(t=>t[2]))].sort();
+  let html = `<button class="chip active" data-cat="All" onclick="toggleFilter(this,'All')">All</button>
+    <button class="chip" data-cat="Deposits" onclick="toggleFilter(this,'Deposits')">Deposits</button>
+    <button class="chip" data-cat="Expenses" onclick="toggleFilter(this,'Expenses')">Expenses</button>`;
+  cats.forEach(c=>{
+    const col = CAT_COLORS[c]||'#475569';
+    html += `<button class="chip" data-cat="${c}" onclick="toggleFilter(this,'${c}')" style="border-left:3px solid ${col}">${c}</button>`;
+  });
+  document.getElementById('filterChips').innerHTML = html;
+}
+
+function toggleFilter(btn, cat){
+  if(cat==='All'){
+    activeFilters.clear();
+    document.querySelectorAll('#filterChips .chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('#filterChips .chip[data-cat="All"]').forEach(b=>b.classList.remove('active'));
+    if(activeFilters.has(cat)){ activeFilters.delete(cat); btn.classList.remove('active'); }
+    else { activeFilters.add(cat); btn.classList.add('active'); }
+    if(activeFilters.size===0){
+      document.querySelectorAll('#filterChips .chip[data-cat="All"]').forEach(b=>b.classList.add('active'));
+    }
+  }
+  filterTable();
+}
+
+function filterTable(){
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const rows = document.querySelectorAll('#txBody tr');
+  let visible = 0;
+  rows.forEach(row=>{
+    const cat = row.dataset.cat||'';
+    const type = row.dataset.type||'';
+    const text = row.textContent.toLowerCase();
+    let show = true;
+    if(activeFilters.size>0){
+      const matchCat = activeFilters.has(cat);
+      const matchDep = activeFilters.has('Deposits') && type==='deposit';
+      const matchExp = activeFilters.has('Expenses') && type==='expense';
+      show = matchCat||matchDep||matchExp;
+    }
+    if(show && search) show = text.includes(search);
+    row.classList.toggle('hidden',!show);
+    if(show) visible++;
+  });
+  document.getElementById('emptyState').style.display = visible===0?'block':'none';
+}
+
+function renderTable(){
+  const txs = TX[currentMonth]||[];
+  const sorted = [...txs].sort((a,b)=>{
+    let va=a[sortCol==='date'?0:sortCol==='desc'?1:sortCol==='cat'?2:'amount'===sortCol?4:0];
+    let vb=b[sortCol==='date'?0:sortCol==='desc'?1:sortCol==='cat'?2:'amount'===sortCol?4:0];
+    if(typeof va==='string') return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+    return sortAsc?va-vb:vb-va;
+  });
+  let html = '';
+  sorted.forEach(([date,desc,cat,src,amount])=>{
+    const type = amount>=0?'deposit':'expense';
+    const col = CAT_COLORS[cat]||'#475569';
+    const amtClass = amount>=0?'amount-pos':'amount-neg';
+    const amtStr = amount>=0?'+'+fmt(amount):'-'+fmt(-amount);
+    const srcBg = src==='Amex'?'#fef3c7':src==='Bank'?'#f1f5f9':'#f1f5f9';
+    const srcColor = src==='Amex'?'#d97706':'#6b7280';
+    html += `<tr data-cat="${cat}" data-type="${type}">
+      <td style="color:#64748b;white-space:nowrap">${date.slice(5).replace('-','/')}</td>
+      <td>${desc}</td>
+      <td><span class="badge" style="background:${col}18;color:${col}">${cat}</span></td>
+      <td><span class="src-badge" style="background:${srcBg};color:${srcColor}">${src}</span></td>
+      <td style="text-align:right"><span class="${amtClass}">${amtStr}</span></td>
+    </tr>`;
+  });
+  document.getElementById('txBody').innerHTML = html;
+  filterTable();
+}
+
+function sortTable(col){
+  if(sortCol===col) sortAsc=!sortAsc; else {sortCol=col;sortAsc=true;}
+  renderTable();
+}
+
+function renderCatChart(){
+  const cats = [...EXP_CATS[currentMonth]].sort((a,b)=>b.amount-a.amount);
+  const max = cats[0]?.amount||1;
+  let html = '';
+  cats.forEach(r=>{
+    const w = (r.amount/max*100).toFixed(1);
+    html += `<div class="cat-row">
+      <div class="cat-name">${r.label}</div>
+      <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${w}%;background:${r.color}"></div></div>
+      <div class="cat-val">${fmt(r.amount)}</div>
+    </div>`;
+  });
+  document.getElementById('catChart').innerHTML = html;
+}
+
+function renderBarChart(){
+  const months = Object.keys(SUMMARY);
+  const maxVal = Math.max(...months.flatMap(m=>{
+    const s = SUMMARY[m];
+    return [s.deposits||0, (s.debits||0)+(s.checks||0), s.amex||0];
+  }));
+  const chartH = 200;
+  const barW = 18;
+
+  let html = `<div style="display:flex;gap:0;align-items:flex-end;padding:10px 0 0 0;border-bottom:1px solid #e2e8f0;position:relative">`;
+  // Y gridlines
+  [0,25,50,75,100].forEach(pct=>{
+    const y = chartH - (pct/100*chartH);
+    const val = (maxVal*pct/100/1000).toFixed(0)+'k';
+    html += `<div style="position:absolute;left:0;right:0;top:${y}px;display:flex;align-items:center;pointer-events:none">
+      <span style="font-size:9px;color:#94a3b8;width:32px;text-align:right;flex-shrink:0">${pct===0?'':('$'+val)}</span>
+      <div style="flex:1;border-top:1px dashed ${pct===0?'#e2e8f0':'#f1f5f9'};margin-left:4px"></div>
+    </div>`;
+  });
+
+  html += `<div style="width:36px;flex-shrink:0"></div>`;
+  html += `<div style="flex:1;display:flex;align-items:flex-end;height:${chartH}px">`;
+  months.forEach(m=>{
+    const s = SUMMARY[m];
+    const depH = s.deposits ? Math.max(2, s.deposits/maxVal*chartH) : 0;
+    const expH = s.debits   ? Math.max(2, (s.debits+s.checks)/maxVal*chartH) : 0;
+    const amxH = s.amex>0  ? Math.max(2, s.amex/maxVal*chartH) : 0;
+    const label = m.split(' ')[0];
+    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+      <div style="display:flex;align-items:flex-end;gap:3px;height:${chartH}px">
+        ${depH>0?`<div class="bar bar-dep" style="height:${depH}px;width:${barW}px" data-tip="${m} Deposits: ${fmt(s.deposits)}"></div>`:`<div style="width:${barW}px;text-align:center;font-size:9px;color:#cbd5e1;writing-mode:vertical-rl">Pending</div>`}
+        ${expH>0?`<div class="bar bar-exp" style="height:${expH}px;width:${barW}px" data-tip="${m} Bank Exp: ${fmt((s.debits||0)+(s.checks||0))}"></div>`:`<div style="width:${barW}px"></div>`}
+        ${amxH>0?`<div class="bar bar-amex" style="height:${amxH}px;width:${barW}px" data-tip="${m} Amex: ${fmt(s.amex)}"></div>`:'<div style="width:'+barW+'px"></div>'}
+      </div>
+      <div class="month-label">${label}</div>
+    </div>`;
+  });
+  html += `</div></div>`;
+  document.getElementById('barChart').innerHTML = html;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+render();
+renderBarChart();
+</script>
+</body>
+</html>
