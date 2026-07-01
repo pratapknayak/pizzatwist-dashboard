@@ -200,7 +200,6 @@ tr.hidden{display:none}
     <div class="chart-legend">
       <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div>Bank Deposits</div>
       <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Bank Expenses</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Amex Charges</div>
     </div>
     <div id="barChart"></div>
   </div>
@@ -1023,7 +1022,7 @@ function renderBarChart(){
   const months = Object.keys(SUMMARY);
   const maxVal = Math.max(...months.flatMap(m=>{
     const s = SUMMARY[m];
-    return [s.deposits||0, (s.debits||0)+(s.checks||0), s.amex||0];
+    return [s.deposits||0, (s.debits||0)+(s.checks||0)];
   }));
   const chartH = 200;
   const barW = 18;
@@ -1045,13 +1044,11 @@ function renderBarChart(){
     const s = SUMMARY[m];
     const depH = s.deposits ? Math.max(2, s.deposits/maxVal*chartH) : 0;
     const expH = s.debits   ? Math.max(2, (s.debits+s.checks)/maxVal*chartH) : 0;
-    const amxH = s.amex>0  ? Math.max(2, s.amex/maxVal*chartH) : 0;
     const label = m.split(' ')[0];
     html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
       <div style="display:flex;align-items:flex-end;gap:3px;height:${chartH}px">
         ${depH>0?`<div class="bar bar-dep" style="height:${depH}px;width:${barW}px" data-tip="${m} Deposits: ${fmt(s.deposits)}"></div>`:`<div style="width:${barW}px;text-align:center;font-size:9px;color:#cbd5e1;writing-mode:vertical-rl">Pending</div>`}
         ${expH>0?`<div class="bar bar-exp" style="height:${expH}px;width:${barW}px" data-tip="${m} Bank Exp: ${fmt((s.debits||0)+(s.checks||0))}"></div>`:`<div style="width:${barW}px"></div>`}
-        ${amxH>0?`<div class="bar bar-amex" style="height:${amxH}px;width:${barW}px" data-tip="${m} Amex: ${fmt(s.amex)}"></div>`:'<div style="width:'+barW+'px"></div>'}
       </div>
       <div class="month-label">${label}</div>
     </div>`;
